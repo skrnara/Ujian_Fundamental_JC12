@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madding</title>
+    <style>
+        body {
+        font-family: Arial, Helvetica, sans-serif;
+        text-align: center;
+        }
+        table,td,th {
+            border: 1px solid lightgrey;
+            border-collapse: collapse;
+        }
+        table{
+            margin: 0 auto;
+            text-align: center;   
+        }
+    </style>
+</head>
+<body>
+        <h1>Madding</h1>
+        Username <input type="text" id="username" placeholder="Masukan username">
+        <br><br>
+        Password <input type="password" id="password" placeholder="Masukan password">
+        <br><br>
+        <button onclick="login()">Login</button>
+        <p id="content"></p>
+    
+</body>
+<script>
+    class User{
+        constructor(username, password, role){
+            this.username=username
+            this.password=password
+            this.role=role
+        }
+    }
+
+    var userData=[
+        new User('admin', '12', 'admin'),
+        new User('billie', '12', 'user')
+    ]
+
+    class Activities{
+    constructor(name, day, picture){
+        this.name=name
+        this.day=day
+        this.picture=picture
+    }
+    }
+
+    var data=[
+    new Activities('Materi','Monday','POSTER'),
+    new Activities('Materi','Tuesday','POSTER'),
+    new Activities('Review','Wednesday','POSTER'),
+    new Activities('Ujian','Thursday','POSTER'),
+    new Activities('Jalan-jalan','Friday','POSTER')
+    ]
+
+    
+    const login=()=>{
+        var username=document.getElementById('username').value 
+        var password=document.getElementById('password').value 
+
+        if(username&&password){
+
+            var checkUser=userData.filter((val)=>val.username==username&&val.password==password)
+            if(checkUser.length===1){                
+
+                //ADMIN LOGIN
+                if(checkUser[0].role=='admin'){
+                    printData()
+                }
+                    
+                //USER LOGIN
+                else{
+                    var output=`<h4>Hello ${checkUser[0].username}, anda login sebagai user</h4>
+                                <br><br>
+                                <h2>Majalah Dinding</h2>
+                                <table>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <td>No.</td>
+                                                <td>Activity</td>
+                                                <td>Day</td>
+                                                <td>Poster</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="printTable">
+                                            
+                                        </tbody>
+                                    </table>
+                                    <br><br>
+                                <button onclick="logout()">Logout</button>`
+
+                    var outputTable=''
+                    data.forEach((val, index)=>{
+                        outputTable+=`<tr>
+                                        <td>${index+1}</td>
+                                        <td>${val.name}</td>
+                                        <td>${val.day}</td>
+                                        <td><img src="${val.picture}" width="150px"></td>
+                                    </tr>`
+                    })                    
+                    document.getElementById('content').innerHTML=output
+                    document.getElementById('printTable').innerHTML=outputTable
+                    
+                }
+            }
+
+            //KALO SALAH INPUT ATAU USERNAME TIDAK RECOGNIZED
+            else{
+                document.getElementById('content').innerHTML=`Anda salah memasukkan username atau password`
+            }
+        }
+
+        //WARNING KELENGKAPAN INPUT DATA 
+        else{
+            document.getElementById('content').innerHTML=`Mohon masukkan username dan password dengan lengkap`
+        }
+    }
+   
+    const logout=()=>{
+        document.getElementById('content').innerHTML=``
+        var username=document.getElementById('username').value='' 
+        var password=document.getElementById('password').value=''
+    }
+    
+    //PRINT DATA UNTUK ADMIN DAN EDIT DELETE SETTING
+    var indexEdit=-1
+    var indexDelete=-1 
+    
+    const printData=()=>{
+        var outputTable=''
+        var outputFooterTable=''
+
+        var output=`<h4>Hello, anda login sebagai admin</h4>
+                    <br><br>
+                    <h2>Majalah Dinding</h2>
+                    <table>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <td>No.</td>
+                                    <td>Activity</td>
+                                    <td>Day</td>
+                                    <td>Poster</td>
+                                    <td>Action<td>
+                                </tr>
+                            </thead>
+                            <tbody id="printTable">
+                                
+                            </tbody>
+                            <tfoot id="printInputTable">
+                            </tfoot>
+                        </table>
+                        <br><br>
+                    <button onclick="logout()">Logout</button>`
+        
+
+        data.forEach((val, index)=>{
+            if(index==indexDelete){
+                outputTable+=`<tr>
+                                <td>${index+1}</td>
+                                <td>${val.name}</td>
+                                <td>${val.day}</td>
+                                <td><img src="${val.picture}" width="150px"></td>
+                                <td><button onclick="confirmDelete(${index})">Confirm</button>&nbsp;<button onclick="cancelDelete(${index})">Cancel</button></td>
+                            </tr>`
+            }
+
+            else if(index==indexEdit){
+                outputTable+=`<tr>
+                                <td>${index+1}</td>
+                                <td><input type="text" id="editedName" placeholder="Masukkan nama kegiatan" value=${data[indexEdit].name}></td>
+                                <td>
+                                    <select id="editedDay">
+                                        <option hidden value="">Choose day...</option>
+                                        <option value="Monday">Monday</option>
+                                        <option value="Tuesday">Tuesday</option>
+                                        <option value="Wednesday">Wednesday</option>
+                                        <option value="Thursday">Thursday</option>
+                                        <option value="Friday">Friday</option>
+                                        <option value="Saturday">Saturday</option>
+                                        <option value="Sunday">Sunday</option>
+                                    </select>
+                                </td>
+                                <td><input type="text" id="editedPicture" placeholder="Masukkan gambar" value=${data[indexEdit].picture}></td>
+                                <td><button onclick="saveUpdate(${index})">Save</button>&nbsp;<button onclick="cancelUpdate(${index})">Cancel</button></td>
+                            </tr>`
+            }
+
+            else{
+                outputTable+=`<tr>
+                                <td>${index+1}</td>
+                                <td>${val.name}</td>
+                                <td>${val.day}</td>
+                                <td><img src="${val.picture}" width="150px"></td>
+                                <td><button onclick="editButton(${index})">Edit</button>&nbsp;<button onclick="deleteButton(${index})">Delete</button></td>
+                            </tr>
+                        </tbody>`
+            }
+    })  
+
+        outputFooterTable+=`<tr>
+                            <td></td>
+                            <td><input type="text" id="inputName" placeholder="Masukkan nama kegiatan"></td>
+                            <td>
+                                <select id="inputDay">
+                                    <option hidden value="">Choose day...</option>
+                                    <option value="Monday">Monday</option>
+                                    <option value="Tuesday">Tuesday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday">Thursday</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Saturday">Saturday</option>
+                                    <option value="Sunday">Sunday</option>
+                                </select>
+                            </td>
+                            <td><input type="text" id="inputPicture" placeholder="Masukkan gambar"></td>
+                            
+                            <td><button onclick="inputNewData()">Input Data</button></td>
+                        </tr>`
+
+        document.getElementById('content').innerHTML=output
+        document.getElementById('printTable').innerHTML=outputTable
+        document.getElementById('printInputTable').innerHTML=outputFooterTable
+    }
+
+    const inputNewData=()=>{
+        var inputNewName=document.getElementById('inputName').value
+        var inputNewDay=document.getElementById('inputDay').value
+        var inputNewPicture=document.getElementById('inputPicture').value
+
+        if(inputNewName==''||inputNewDay==''||inputNewPicture==''){
+            alert(`Lengkapi input sebelum submit`)
+        }
+        else{
+            data.push(new Activities(inputNewName,inputNewDay,inputNewPicture))
+            
+            printData()  
+        }      
+    }
+
+    const deleteButton=(indexDel)=>{
+        indexDelete=indexDel
+        printData()
+    }
+
+    const confirmDelete=(indexDel)=>{
+        data.splice(indexDel,1)
+        indexDelete=-1
+        printData()
+    }
+
+    const cancelDelete=()=>{
+        indexDelete=-1
+        printData()
+    }
+    
+    const editButton=(indexEd)=>{
+        indexEdit=indexEd
+        printData()
+    }
+
+    const saveUpdate=(indexEd)=>{
+        var newEditedName=document.getElementById('editedName').value
+        var newEditedDay=document.getElementById('editedDay').value
+        var newEditedPicture=document.getElementById('editedPicture').value
+
+        if(newEditedName===''){newEditedName=data[indexEd].name}
+        if(newEditedDay===''){newEditedDay=data[indexEd].day}
+        if(newEditedPicture===''){newEditedPicture=data[indexEd].picture}
+
+        data.splice(indexEd, 1, new Activities (newEditedName,newEditedDay,newEditedPicture))
+        
+        indexEdit=-1
+        printData()
+    }
+
+    const cancelUpdate=()=>{
+        indexEdit=-1
+        printData()
+    }
+</script>
+</html>
